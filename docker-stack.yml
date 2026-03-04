@@ -127,11 +127,13 @@ services:
     deploy:
       replicas: 2
   db:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       POSTGRES_DB: ${DB_NAME}
+    secrets:
+      - db_password
     volumes:
       - postgres_data:/var/lib/postgresql
     networks:
