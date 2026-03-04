@@ -1,0 +1,297 @@
+secrets:
+  db_user:
+    external: true
+  db_password:
+    external: true
+  db_name:
+    external: true
+  jwt_private_key:
+    external: true
+  s3_access_key:
+    external: true
+  s3_secret_key:
+    external: true
+
+volumes:
+  postgres_data:
+  rustfs-data:
+  redis_data:
+  lgtm-data:
+  portainer-data:
+  redis-data:
+  grafana-data:
+
+networks:
+  traefik_public:
+    driver: overlay
+    attachable: true
+  net-data:
+    driver: overlay
+    internal: true
+  monitoring:
+    driver: overlay
+    internal: true
+  agent-network:
+    driver: overlay
+    internal: true
+
+services:
+  traefik:
+    image: traefik:3.3
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik_public
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+    command:
+      - "--providers.swarm=true"
+      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--api.dashboard=true"
+  frontend:
+    image: ${REGISTRY}/nebula-frontweb:1.0.0
+    networks:
+      - traefik_public
+      - monitoring
+    deploy:
+      replicas: 2
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.svelte_app.rule=Host(`svelte.${DOMAIN}`)"
+        - "traefik.http.routers.svelte_app.entrypoints=web"
+        - "traefik.http.services.svelte_app.loadbalancer.server.port=80"
+      resources:
+        limits:
+          memory: 256M
+  api_auth:
+    image: ${REGISTRY}/nebula-api-auth:1.0.0
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_HOST=${DB_HOST}
+    secrets:
+      - db_password
+      - jwt_private_key
+    networks:
+      - traefik_public
+      - net-data
+      - monitoring
+    deploy:
+      replicas: 2
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.api_auth.rule=Host(`auth.${DOMAIN}`)"
+        - "traefik.http.routers.api_auth.entrypoints=web"
+        - "traefik.http.services.api_auth.loadbalancer.server.port=8000"
+        - "traefik.docker.network=nebula_traefik_public"
+  api_crud:
+    image: ${REGISTRY}/nebula-api-crud:1.0.0
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_HOST=${DB_HOST}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_HOST=${S3_HOST}
+    secrets:
+      - db_password
+      - s3_access_key
+      - s3_secret_key
+    networks:
+      - traefik_public
+      - net-data
+      - monitoring
+    deploy:
+      replicas: 2
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.api_crud.rule=Host(`api.${DOMAIN}`)"
+        - "traefik.http.routers.api_crud.entrypoints=web"
+        - "traefik.http.services.api_crud.loadbalancer.server.port=8000"
+        - "traefik.docker.network=nebula_traefik_public"
+  queue_worker:
+    image: zolnarian/nebula-queue-worker:1.0.0
+    networks:
+      - net-data
+    deploy:
+      replicas: 2
+  db:
+    image: postgres:18-bookworm
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - net-data
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.postgres == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+  pg-backup:
+    image: eeshugerman/postgres-backup-s3:16
+    environment:
+      SCHEDULE: "@daily"
+      S3_REGION: us-east-1
+      S3_ENDPOINT: ${S3_HOST}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+      S3_PREFIX: postgres
+      POSTGRES_HOST: haproxy
+      POSTGRES_PORT: 5000
+      POSTGRES_DATABASE: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    entrypoint: entrypoint
+    networks:
+      - net-data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 24h
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.platform.os == linux
+    volumes:
+      - lgtm-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        mode: host
+      - target: 4317
+        published: 4317
+        protocol: tcp
+        mode: host
+      - target: 4318
+        published: 4318
+        protocol: tcp
+        mode: host
+      - target: 9090
+        published: 9090
+        protocol: tcp
+        mode: host
+    networks:
+      - monitoring
+  portainer:
+    image: portainer/portainer-ce:latest
+    command: -H tcp://tasks.portainer-agent:9001 --tlsskipverify
+    volumes:
+      - portainer-data:/data
+    networks:
+      - agent-network
+      - traefik_public
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN}`)"
+        - "traefik.http.routers.portainer.entrypoints=web"
+        - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+        - "traefik.docker.network=nebula_traefik_public"
+  portainer-agent:
+    image: portainer/agent:2.39.0-alpine
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - agent-network
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.platform.os == linux
+  rustfs:
+    image: rustfs/rustfs:latest
+    environment:
+      RUSTFS_CONSOLE_ENABLE: true
+    entrypoint: >
+      sh -c '
+        export RUSTFS_ACCESS_KEY=$(cat /run/secrets/s3_access_key) &&
+        export RUSTFS_SECRET_KEY=$(cat /run/secrets/s3_secret_key) &&
+        exec /usr/local/bin/rustfs $$@
+      '
+    secrets:
+      - s3_access_key
+      - s3_secret_key
+    volumes:
+      - rustfs-data:/data
+    networks:
+      - traefik_public
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.rustfs.rule=Host(`s3.${DOMAIN}`)"
+        - "traefik.http.routers.rustfs.entrypoints=web"
+        - "traefik.http.services.rustfs.loadbalancer.server.port=9001"
+        - "traefik.docker.network=nebula_traefik_public"
+  redis:
+    image: redis:8.2.5-bookworm
+    volumes:
+      - redis-data:/data
+    networks:
+      - net-data
+    deploy:
+      mode: replicated
+      replicas: 1
+  grafana:
+    image: grafana/grafana:main-ubuntu
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitoring
+      - traefik_public
+      - net-data
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=changeme
+      - GF_SERVER_ROOT_URL=https://grafana.${DOMAIN}
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.grafana.rule=Host(`grafana.localhost`)"
+        - "traefik.http.routers.grafana.entrypoints=web"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+        - "traefik.docker.network=nebula_traefik_public"

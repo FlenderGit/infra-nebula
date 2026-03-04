@@ -1,0 +1,44 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    url: http://nebula_otel-lgtm:9090
+    access: proxy
+    isDefault: true
+    editable: false
+
+  - name: Loki
+    type: loki
+    uid: loki
+    url: http://nebula_otel-lgtm:3100
+    access: proxy
+    editable: false
+
+  - name: Tempo
+    type: tempo
+    uid: tempo
+    url: http://nebula_otel-lgtm:3200
+    access: proxy
+    editable: false
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: loki
+      lokiSearch:
+        datasourceUid: loki
+
+  - name: PostgreSQL
+    type: postgres
+    uid: postgres
+    url: nebula_db:5432
+    user: ${GF_POSTGRES_USER}
+    editable: false
+    secureJsonData:
+      password: ${GF_POSTGRES_PASSWORD}
+    jsonData:
+      database: ${GF_POSTGRES_DB}
+      sslmode: disable
+      maxOpenConns: 10
+      maxIdleConns: 2
+      connMaxLifetime: 14400
