@@ -234,7 +234,7 @@ services:
   rustfs:
     image: rustfs/rustfs:latest
     environment:
-      RUSTFS_CONSOLE_ENABLE: true
+      RUSTFS_CONSOLE_ENABLE: "true"
     entrypoint:
       - sh
       - -c
