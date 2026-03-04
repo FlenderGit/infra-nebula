@@ -1,9 +1,5 @@
 secrets:
-  db_user:
-    external: true
   db_password:
-    external: true
-  db_name:
     external: true
   jwt_private_key:
     external: true
@@ -131,7 +127,7 @@ services:
     deploy:
       replicas: 2
   db:
-    image: postgres:18-bookworm
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -171,7 +167,7 @@ services:
         condition: any
         delay: 24h
   otel-lgtm:
-    image: grafana/otel-lgtm:latest
+    image: grafana/otel-lgtm:0.8.2
     deploy:
       mode: global
       placement:
