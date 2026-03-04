@@ -33,7 +33,7 @@ networks:
 
 services:
   traefik:
-    image: traefik:3.3
+    image: traefik:3.6.9
     ports:
       - target: 80
         published: 80
