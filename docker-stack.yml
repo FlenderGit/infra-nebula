@@ -163,7 +163,6 @@ services:
       POSTGRES_DATABASE: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    entrypoint: entrypoint
     networks:
       - net-data
     deploy:
@@ -236,12 +235,13 @@ services:
     image: rustfs/rustfs:latest
     environment:
       RUSTFS_CONSOLE_ENABLE: true
-    entrypoint: >
-      sh -c '
-        export RUSTFS_ACCESS_KEY=$(cat /run/secrets/s3_access_key) &&
-        export RUSTFS_SECRET_KEY=$(cat /run/secrets/s3_secret_key) &&
+    entrypoint:
+      - sh
+      - -c
+      - |
+        export RUSTFS_ACCESS_KEY=$$(cat /run/secrets/s3_access_key) &&
+        export RUSTFS_SECRET_KEY=$$(cat /run/secrets/s3_secret_key) &&
         exec /usr/local/bin/rustfs $$@
-      '
     secrets:
       - s3_access_key
       - s3_secret_key
