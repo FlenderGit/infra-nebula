@@ -169,7 +169,7 @@ services:
         condition: any
         delay: 24h
   otel-lgtm:
-    image: grafana/otel-lgtm:0.8.2
+    image: grafana/otel-lgtm:0.6.0
     deploy:
       mode: global
       placement:
@@ -239,7 +239,7 @@ services:
       - |
         export RUSTFS_ACCESS_KEY=$$(cat /run/secrets/s3_access_key) &&
         export RUSTFS_SECRET_KEY=$$(cat /run/secrets/s3_secret_key) &&
-        exec /usr/local/bin/rustfs $$@
+        exec /entrypoint.sh rustfs
     secrets:
       - s3_access_key
       - s3_secret_key
