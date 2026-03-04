@@ -61,7 +61,7 @@ services:
       - "--entrypoints.websecure.address=:443"
       - "--api.dashboard=true"
   frontend:
-    image: ${REGISTRY}/nebula-frontweb:1.0.0
+    image: ${REGISTRY}/nebula-frontend:1.0.0
     networks:
       - traefik_public
       - monitoring
