@@ -486,7 +486,7 @@ services:
     volumes:
       - redis-/bitnami/redis/data
     networks:
-      - redis-net
+      - net-data
     deploy:
       replicas: 1
       placement:
@@ -502,7 +502,7 @@ services:
     depends_on:
       - redis-master
     networks:
-      - redis-net
+      - net-data
     deploy:
       replicas: 2
 
@@ -517,7 +517,7 @@ services:
       - redis-master
       - redis-replica
     networks:
-      - redis-net
+      - net-data
     deploy:
       replicas: 3
       placement:
