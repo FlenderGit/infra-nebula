@@ -116,9 +116,9 @@ services:
         reservations:
           memory: 16M
           cpus: "0.10"
-    placement:
-      constraints:
-        - node.role == worker
+      placement:
+        constraints:
+          - node.role == worker
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s
