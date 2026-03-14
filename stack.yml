@@ -19,7 +19,7 @@ secrets:
     external: true
 
 volumes:
-  postgres_data:
+  db_data:
   rustfs-data:
   redis_data:
   lgtm-data:
@@ -298,7 +298,7 @@ services:
     networks:
       - net-data
     volumes:
-      - surreal-data:/surreal/data
+      - db_data:/surreal/data
     read_only: true
     user: "1000:1000"
     security_opt:
