@@ -158,28 +158,28 @@ services:
         - "traefik.http.middlewares.api_auth-ratelimit.ratelimit.average=20"
         - "traefik.http.middlewares.api_auth-ratelimit.ratelimit.burst=10"
         - "traefik.http.middlewares.api_auth-ratelimit.ratelimit.period=1m"
-    update_config:
-      parallelism: 1
-      delay: 15s
-      failure_action: rollback
-      order: start-first
+      update_config:
+        parallelism: 1
+        delay: 15s
+        failure_action: rollback
+        order: start-first
 
-    rollback_config:
-      parallelism: 1
-      delay: 5s
-      failure_action: continue
-      order: stop-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: continue
+        order: stop-first
 
-    restart_policy:
-      condition: on-failure
-      delay: 10s
-      max_attempts: 3
-      window: 120s
-    placement:
-      constraints:
-        - node.role == worker
-      preferences:
-        - spread: node.id
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      placement:
+        constraints:
+          - node.role == worker
+        preferences:
+          - spread: node.id
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
