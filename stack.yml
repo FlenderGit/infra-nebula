@@ -289,13 +289,12 @@ services:
     image: surrealdb/surrealdb:latest
     command: start --bind 0.0.0.0:8000 --addr surreal-node --user root --pass rootpass --distribute --kvs tikv
     secrets:
-      - surreal_user
-      - surreal_password
+      - db_password
     environment:
-      - SURREAL_USER_FILE=/run/secrets/surreal_user
-      - SURREAL_PASS_FILE=/run/secrets/surreal_password
-      - SURREAL_CAPS_ALLOW_NET=false # Désactive les requêtes HTTP sortantes depuis SurrealDB
-      - SURREAL_CAPS_ALLOW_FUNCS=false # Désactive les fonctions custom (sécurité)
+      - SURREAL_USER=root
+      - SURREAL_PASS_FILE=/run/secrets/db_password
+      - SURREAL_CAPS_ALLOW_NET=false
+      - SURREAL_CAPS_ALLOW_FUNCS=false
     networks:
       - net-data
     volumes:
