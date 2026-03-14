@@ -278,8 +278,9 @@ services:
         reservations:
           memory: 64M
           cpus: "0.25"
-      constraints:
-        - node.role == worker
+      placement:
+        constraints:
+          - node.role == worker
   surreal:
     image: surrealdb/surrealdb:latest
     command: start --bind 0.0.0.0:8000 --addr surreal-node --user root --pass rootpass --distribute --kvs tikv
