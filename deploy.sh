@@ -3,4 +3,4 @@ set -a
 source .env
 set +a
 
-docker stack deploy -c docker-stack.yml nebula
+docker stack deploy -c stack.yml nebula
