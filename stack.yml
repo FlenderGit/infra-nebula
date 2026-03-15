@@ -551,7 +551,8 @@ services:
     environment:
       - NATS_NODE_NAME=nats-node-1
     configs:
-      - nats_config
+      - source: nats_config
+        target: /etc/nats/nats.conf
     networks:
       - nats-cluster
     deploy:
@@ -564,7 +565,8 @@ services:
     environment:
       - NATS_NODE_NAME=nats-node-2
     configs:
-      - nats_config
+      - source: nats_config
+        target: /etc/nats/nats.conf
     networks:
       - nats-cluster
     deploy:
@@ -577,7 +579,8 @@ services:
     environment:
       - NATS_NODE_NAME=nats-node-3
     configs:
-      - nats_config
+      - source: nats_config
+        target: /etc/nats/nats.conf
     networks:
       - nats-cluster
     deploy:
