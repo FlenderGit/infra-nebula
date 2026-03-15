@@ -115,7 +115,7 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 64M
+          memory: 128M
           cpus: "0.50"
         reservations:
           memory: 16M
@@ -192,7 +192,7 @@ services:
       start_period: 20s
 
   api_crud:
-    image: ${REGISTRY}/nebula-api-crud:1.0.0
+    image: ${REGISTRY}/nebula-api-crud:1.0.1
     environment:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
