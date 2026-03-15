@@ -267,7 +267,7 @@ services:
   # Queue Worker
   # ------
   queue_worker:
-    image: zolnarian/nebula-queue-worker:1.0.0
+    image: ${REGISTRY}/nebula-queue-worker:1.0.0
     user: "1000:1000"
     security_opt:
       - no-new-privileges:true
