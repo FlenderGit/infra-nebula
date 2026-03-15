@@ -31,18 +31,33 @@ networks:
   traefik_public:
     driver: overlay
     attachable: true
+    ipam:
+      config:
+        - subnet: 10.20.1.0/24
   net-data:
     driver: overlay
     internal: true
+    ipam:
+      config:
+        - subnet: 10.20.2.0/24
   monitoring:
     driver: overlay
     internal: true
+    ipam:
+      config:
+        - subnet: 10.20.5.0/24
   agent-network:
     driver: overlay
     internal: true
+    ipam:
+      config:
+        - subnet: 10.20.3.0/24
   nats-cluster:
     driver: overlay
     internal: true
+    ipam:
+      config:
+        - subnet: 10.20.4.0/24
 
 services:
   # ------
