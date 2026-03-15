@@ -3,6 +3,8 @@ configs:
     file: ./nginx.conf
   nats_config:
     file: ./nats-server.conf
+  sentinel_config:
+    file: ./sentinel.conf
 
 secrets:
   db_password:
@@ -518,6 +520,9 @@ services:
   redis-sentinel:
     image: "redis:8-alpine"
     command: redis-sentinel /etc/redis/sentinel.conf
+    configs:
+      - source: sentinel_config
+        target: /etc/redis/sentinel.conf
     networks:
       - net-data
     deploy:
