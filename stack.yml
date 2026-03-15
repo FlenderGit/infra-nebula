@@ -497,7 +497,7 @@ services:
           - node.platform.os == linux
 
   redis-master:
-    image: "bitnami/redis:7.2"
+    image: "bitnami/redis:sha256-97b20eafbc1e8a63fa244920980aeb81e686232a989a68f5379db73032d0b1a8"
     environment:
       - REDIS_REPLICATION_MODE=master
       - REDIS_PASSWORD=yourpassword
@@ -511,7 +511,7 @@ services:
         constraints: [node.role == manager]
 
   redis-replica:
-    image: "bitnami/redis:7.2"
+    image: "bitnami/redis:sha256-97b20eafbc1e8a63fa244920980aeb81e686232a989a68f5379db73032d0b1a8"
     environment:
       - REDIS_REPLICATION_MODE=slave
       - REDIS_MASTER_HOST=redis-master
@@ -523,7 +523,7 @@ services:
       replicas: 2
 
   redis-sentinel:
-    image: "bitnami/redis-sentinel:7.2"
+    image: "bitnami/redis-sentinel:sha256-e0583a16f90048011e1dcc887754bfa04f23b2dee99e173f6d2fd39d39d9329b"
     environment:
       - REDIS_MASTER_SET=mymaster
       - REDIS_MASTER_HOST=redis-master
