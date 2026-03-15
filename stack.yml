@@ -150,7 +150,7 @@ services:
   # Apps: Auth API
   # ------
   api_auth:
-    image: ${REGISTRY}/nebula-api-auth:1.0.1
+    image: ${REGISTRY}/nebula-api-auth:1.0.2
     environment:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
@@ -519,10 +519,10 @@ services:
 
   redis-sentinel:
     image: "redis:8-alpine"
-    command: redis-sentinel /etc/redis/sentinel.conf
+    command: redis-sentinel /tmp/sentinel.conf
     configs:
       - source: sentinel_config
-        target: /etc/redis/sentinel.conf
+        target: /tmp/sentinel.conf
     networks:
       - net-data
     deploy:
