@@ -497,10 +497,8 @@ services:
           - node.platform.os == linux
 
   redis-master:
-    image: "bitnami/redis:sha256-97b20eafbc1e8a63fa244920980aeb81e686232a989a68f5379db73032d0b1a8"
-    environment:
-      - REDIS_REPLICATION_MODE=master
-      - REDIS_PASSWORD=yourpassword
+    image: "redis:8-alpine"
+    command: redis-server --requirepass yourpassword --appendonly yes
     volumes:
       - redis_data:/bitnami/redis/data
     networks:
@@ -511,12 +509,8 @@ services:
         constraints: [node.role == manager]
 
   redis-replica:
-    image: "bitnami/redis:sha256-97b20eafbc1e8a63fa244920980aeb81e686232a989a68f5379db73032d0b1a8"
-    environment:
-      - REDIS_REPLICATION_MODE=slave
-      - REDIS_MASTER_HOST=redis-master
-      - REDIS_MASTER_PASSWORD=yourpassword
-      - REDIS_PASSWORD=yourpassword
+    image: "redis:8-alpine"
+    command: redis-server --requirepass yourpassword --replicaof redis-master 6379 --masterauth yourpassword
     networks:
       - net-data
     deploy:
