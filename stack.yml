@@ -502,7 +502,7 @@ services:
       - REDIS_REPLICATION_MODE=master
       - REDIS_PASSWORD=yourpassword
     volumes:
-      - redis:/bitnami/redis/data
+      - redis_data:/bitnami/redis/data
     networks:
       - net-data
     deploy:
@@ -529,9 +529,6 @@ services:
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PASSWORD=yourpassword
       - REDIS_SENTINEL_PASSWORD=sentinelpassword
-    depends_on:
-      - redis-master
-      - redis-replica
     networks:
       - net-data
     deploy:
