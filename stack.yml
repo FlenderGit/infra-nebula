@@ -112,7 +112,6 @@ services:
       replicas: 2
       labels:
         - "traefik.enable=true"
-        - "traefik.swarm.network=nebula_traefik_public"
         - "traefik.http.routers.svelte_app.rule=Host(`svelte.${DOMAIN}`)"
         - "traefik.http.routers.svelte_app.entrypoints=web"
         - "traefik.http.services.svelte_app.loadbalancer.server.port=80"
