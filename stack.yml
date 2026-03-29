@@ -100,7 +100,7 @@ services:
   # Apps: Frontend (nginx + html static)
   # ------
   frontend:
-    image: ${REGISTRY}/nebula-frontend:1.0.0
+    image: ${REGISTRY}/nebula-frontend:1.0.1
     networks:
       - traefik_public
       - monitoring
@@ -520,10 +520,12 @@ services:
 
   redis-sentinel:
     image: "redis:8-alpine"
-    command: redis-sentinel /tmp/sentinel.conf
+    command: >
+      sh -c "cp /tmp/sentinel-init.conf /tmp/sentinel.conf &&
+        redis-sentinel /tmp/sentinel.conf"
     configs:
       - source: sentinel_config
-        target: /tmp/sentinel.conf
+        target: /tmp/sentinel-init.conf
     networks:
       - net-data
     deploy:
