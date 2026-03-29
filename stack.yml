@@ -216,6 +216,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_HOST=${DB_HOST}
+      - DB_PASSWORD=${DB_PASSWORD}
       - S3_BUCKET=${S3_BUCKET}
       - S3_HOST=${S3_HOST}
     secrets:
