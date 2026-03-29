@@ -28,6 +28,7 @@ volumes:
   portainer-data:
   redis-data:
   grafana-data:
+  postgres_data:
 
 networks:
   traefik_public:
