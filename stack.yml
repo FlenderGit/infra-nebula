@@ -610,8 +610,6 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_SERVER_HTTP_PORT=3001
-    ports:
-      - 3000:3000
     networks:
       - traefik_public
     volumes:
