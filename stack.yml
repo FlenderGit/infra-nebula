@@ -611,7 +611,7 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
-      - nebula_traefik_public
+      - traefik_public
     volumes:
       - grafana_data:/var/lib/grafana
     restart: unless-stopped
