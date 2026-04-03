@@ -609,12 +609,10 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_SERVER_HTTP_PORT=3001
     networks:
       - traefik_public
     volumes:
       - grafana_data:/var/lib/grafana
-    restart: unless-stopped
     deploy:
       mode: replicated
       replicas: 1
@@ -625,5 +623,5 @@ services:
         - "traefik.enable=true"
         - "traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN}`)"
         - "traefik.http.routers.grafana.entrypoints=web"
-        - "traefik.http.services.grafana.loadbalancer.server.port=3001"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
         - "traefik.docker.network=nebula_traefik_public"
